@@ -6,18 +6,21 @@
  */
 ?>
 <h2 class="entry-title"><?php echo $show->title?></h2>
-    <div class="entry-meta">
-        <?php echo $start_date?>  
-        <?php echo $end_date?>
-    </div>
 
     <table>
         <thead>
         <tr>
-            <th colspan="2">&nbsp;</th>
+            <th colspan="2"><?php _e('Show Details', 'theatre-troupe')?></th>
         </tr>
         </thead>
         <tbody>
+        <tr>
+            <td><?php _e('Timeframe', 'theatre-troupe')?></td>
+            <td>
+        <?php echo $start_date?>
+        <?php echo $end_date?>
+            </td>
+        </tr>
         <tr>
             <td><?php _e('Series', 'theatre-troupe')?></td>
             <td><?php echo $series->title?></td>
@@ -47,12 +50,5 @@
         </tbody>
     </table>
 
-
-<?php if (!empty($actors)): ?>
-<h2><?php _e('Participating actors', 'theatre-troupe')?></h2>
-    <ul>
-        <?php foreach ($actors as $actor):?>
-            <li><?php echo $model_actors->full_name($actor->ID)?></li>
-        <?php endforeach;?>
-    </ul>
-<?php endif; ?>
+<!-- List of actors who play in this show -->
+<?php echo ttroupe_actors_list($show->id) ?>

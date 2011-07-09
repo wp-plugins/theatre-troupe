@@ -125,7 +125,7 @@ class Theatre_Troupe_Shortcode {
 
         $statuses = $model_actors->actor_statuses();
 
-        if ( !isset($status) || !array_key_exists($status, $statuses) || $status = 'unassigned') {
+        if ( !isset($status) || !array_key_exists($status, $statuses) || $status == 'unassigned') {
             return NULL;
         }
 
@@ -140,7 +140,7 @@ class Theatre_Troupe_Shortcode {
             $html .= '<ul>';
 
             foreach ( $actors as $actor ) {
-                $html .= '<li><strong>'.$model_actors->full_name($actor->ID).'</strong></li>';
+                $html .= '<li><strong>'.ttroupe_profile_link($actor->ID).'</strong></li>';
             }
             $html .= '</ul>';
         } else {
@@ -159,7 +159,7 @@ class Theatre_Troupe_Shortcode {
      * @return string
      */
     public function show_details() {
-        global $model_shows, $model_series;
+        global $model_shows, $model_series, $model_actors;
         $show_id = (isset($_GET['show_id'])) ? $_GET['show_id'] : $model_shows->get_closest('prev');
         if ( empty($show_id) ) {
             return '';
@@ -172,9 +172,31 @@ class Theatre_Troupe_Shortcode {
         $end_date = strtotime($show->end_date);
         $end_date = ($end_date > $start_date) ? ' - '.date_i18n(get_option('links_updated_date_format'), $end_date) : NULL;
         $start_date = date_i18n(get_option('links_updated_date_format'), $start_date);
-        $actors = $model_shows->get_actors($show->id);
+
         
-        include(WP_PLUGIN_DIR . TTROUPE_DIR . '/templates/show_details.php');
+        include(TTROUPE_PATH . 'templates/show_details.php');
+    }
+
+
+    /**
+     * Inserts the output of [ttroupe-actor-shows] to the bottom of the page
+     * if the page is listed as a profile page.
+     * The function must be set as enabled from settings.
+     * @param $content
+     * @return string
+     */
+    public function auto_insert_actor_shows($content) {
+        if (!get_option('ttroupe_insert_shows')) {
+            return $content;
+        }
+        global $model_actors;
+        $actor_id = $model_actors->is_profile_page();
+        if (empty($actor_id)) {
+            return $content;
+        }
+
+        $content .= $this->actor_shows(array('actor_id' => $actor_id));
+        return $content;
     }
 
 }
